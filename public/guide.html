@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Production Ready Checklist — Panduan Lokal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700&display=swap');
+    :root{font-family:Manrope,Arial,sans-serif;color:#20384c;background:#f6f4ef}*{box-sizing:border-box}body{margin:0}.hero{padding:68px max(24px,calc((100vw - 1000px)/2));color:#eaf0f4;background:#132b40}.eyebrow{color:#efb650;font:700 10px 'DM Mono',monospace;letter-spacing:1.4px}.hero h1{max-width:680px;margin:10px 0 14px;font-size:clamp(36px,6vw,64px);line-height:1;letter-spacing:-3px}.hero h1 em{color:#f1b854;font-family:'Playfair Display',serif}.hero p{max-width:650px;color:#b9cbd7;font-size:15px;line-height:1.7}.actions,.links{display:flex;flex-wrap:wrap;gap:9px;margin-top:23px}.actions a,.links a{padding:10px 13px;border:1px solid #47708b;border-radius:8px;color:#f4f8fa;background:#1e4058;text-decoration:none;font-size:11px;font-weight:800}.actions a.primary{color:#173148;background:#f2b852;border-color:#f2b852}.wrap{max-width:1000px;margin:0 auto;padding:46px 24px 80px}.intro{padding:20px 22px;border:1px solid #e3ddd4;border-radius:12px;background:#fffdf9;color:#62707b;font-size:14px;line-height:1.7}.intro b{color:#29465a}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:30px}.card{padding:22px;border:1px solid #e4ded5;border-radius:11px;background:#fffdfa}.card.full{grid-column:1/-1}.card h2{margin:0 0 10px;color:#284256;font-size:19px;letter-spacing:-.7px}.card p,.card li{color:#65737d;font-size:13px;line-height:1.65}.card ol,.card ul{padding-left:19px;margin:10px 0}pre{overflow:auto;padding:13px;border-radius:7px;color:#d6e6ed;background:#162d40;font:11px/1.7 'DM Mono',monospace}code{font-family:'DM Mono',monospace;color:#a26044;font-size:.9em}.note{padding:12px 14px;border-left:3px solid #e8a641;border-radius:0 7px 7px 0;background:#fff8e9;color:#705d38;font-size:12px;line-height:1.6}.step{padding:12px 0;border-top:1px solid #eee8df}.step:first-of-type{border-top:0}.step b{color:#334d61}.links{margin-top:12px}.links a{padding:7px 9px;border-color:#dcd8d0;color:#326e96;background:#fff}@media(max-width:700px){.hero{padding:48px 22px}.grid{grid-template-columns:1fr}.card.full{grid-column:auto}}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <span class="eyebrow">PRODUCTION READY CHECKLIST</span>
+    <h1>Jadikan evidence sebagai <em>source of truth.</em></h1>
+    <p>Dashboard lokal untuk memetakan readiness aplikasi, menyimpan lokasi dokumen, mengaudit repository, dan meminta AI agent membantu menutup gap dengan bukti yang dapat direview.</p>
+    <div class="actions"><a class="primary" href="/">Buka dashboard →</a><a href="https://github.com/sammyjason39/production-ready-checklist" target="_blank" rel="noreferrer">GitHub repository ↗</a><a href="/document-index.template.json" download="documents.json">Download document index JSON</a></div>
+  </header>
+  <main class="wrap">
+    <p class="intro"><b>Platform ini bukan sekadar checklist.</b> Ia menghubungkan tiap requirement dengan owner, artefak, evidence, dan lokasi dokumen kanonis. Agent boleh menemukan kandidat evidence atau membuat draft, tetapi manusia tetap mereview sebelum item dinyatakan selesai.</p>
+    <section class="grid">
+      <article class="card"><h2>1. Jalankan di local</h2><p>Butuh Node.js 18 atau lebih baru.</p><pre>git clone https://github.com/sammyjason39/production-ready-checklist.git
+cd production-ready-checklist
+npm install
+npm run dev</pre><p>Workspace, status, dan imported index disimpan pada browser melalui <code>localStorage</code>.</p></article>
+      <article class="card"><h2>2. Petakan proyek</h2><p>Atur tipe produk, tier risiko, AI/Agent, dan public web. Tambahkan anggota tim beserta skill dan posisi mereka di Projects &amp; team.</p><div class="note">Mulai dari Application Profile, owner, dan risk tier. Kecepatan build tidak menggantikan keputusan ini.</div></article>
+      <article class="card full"><h2>3. Simpan lokasi dokumen di Document Index</h2><p>Agent atau tim menyimpan path dan URL kanonis di <code>&lt;target-repo&gt;/.production-ready/documents.json</code>.</p><pre>{
+  "schemaVersion": "1.0",
+  "documents": [{
+    "checklistId": "DES-001",
+    "artifactCode": "PRO-004",
+    "title": "PRD v1",
+    "type": "markdown",
+    "location": { "type": "repository", "path": "docs/product/prd.md" }
+  }]
+}</pre><p>Checklist → Document Index → Import index. Pilih root folder repository satu kali untuk membuka file lokal. Markdown, PDF, dan DOCX dibaca lokal; URL Jira/ClickUp/Notion/Drive dibuka di browser.</p></article>
+      <article class="card"><h2>4. Install skills</h2><p>Salin atau symlink kedua folder ini ke skills directory agent:</p><pre>skills/production-readiness-scan/
+skills/production-readiness-evidence/</pre><p>Format <code>SKILL.md</code> dapat dipakai Codex, Claude, Hermes, atau agent lain yang mendukung convention tersebut.</p><div class="links"><a href="https://github.com/sammyjason39/production-ready-checklist/tree/main/skills/production-readiness-scan">Scan skill ↗</a><a href="https://github.com/sammyjason39/production-ready-checklist/tree/main/skills/production-readiness-evidence">Evidence skill ↗</a></div></article>
+      <article class="card"><h2>5. Scan repository</h2><p>Agent menjalankan scanner tanpa mengirim source code keluar dari mesin.</p><pre>node scripts/scan-repository.mjs \
+  --root /absolute/path/to/target-repository</pre><p>Hasil ada di <code>.production-ready/audit.json</code>. Di dashboard: Checklist → Local agent workflow → Import scan.</p><p>Scan hanya memberi <em>candidate evidence</em>; ia tidak otomatis memberi status Selesai.</p></article>
+      <article class="card full"><h2>6. Dokumentasi online melalui MCP</h2><div class="step"><b>Hubungkan sumber yang diotorisasi.</b><p>Agent memakai MCP untuk Jira, ClickUp, Notion, Drive, atau sistem lain hanya pada project/folder/space yang user izinkan.</p></div><div class="step"><b>Tulis index, bukan credential.</b><p>Agent menyimpan judul, URL/path kanonis, status, tag, dan ringkasan faktual pada <code>documents.json</code>. Jangan commit token atau isi dokumen privat yang tidak diperlukan.</p></div><div class="step"><b>Review dan iterasi.</b><p>Import document index dan audit report, buka evidence, tetapkan owner, gunakan Copy prompt untuk membuat draft, lalu review dan scan ulang.</p></div></article>
+      <article class="card full"><h2>Alur singkat</h2><pre>Repository / MCP docs → documents.json → dashboard Document Index
+Repository + documents.json → scan-repository.mjs → audit.json → dashboard checklist
+Checklist gap → Copy prompt / Agent gap plan → draft artefak → review owner → evidence</pre><div class="links"><a href="https://github.com/sammyjason39/production-ready-checklist/blob/main/README.md">README lengkap ↗</a><a href="https://github.com/sammyjason39/production-ready-checklist/blob/main/docs/agent-workflow.md">Agent workflow ↗</a></div></article>
+    </section>
+  </main>
+</body>
+</html>
