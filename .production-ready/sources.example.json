@@ -1,0 +1,12 @@
+{
+  "documents": [
+    {
+      "title": "Example PRD",
+      "url": "https://your-company.atlassian.net/wiki/spaces/PRODUCT/pages/123/Checkout+PRD",
+      "source": "jira-or-confluence",
+      "retrievedAt": "2026-09-23T00:00:00Z",
+      "tags": ["prd", "acceptance criteria", "checkout"],
+      "summary": "Scope, non-scope, owner, acceptance criteria, risk, and success metrics are documented."
+    }
+  ]
+}
