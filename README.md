@@ -26,6 +26,7 @@ Hasil static site berada di `dist/` dan dapat di-host di Vercel, Nginx, atau VPS
 - Lifecycle dashboard, readiness score, release blocker, pencarian, dan filter status.
 - Evidence yang dapat ditambahkan per checklist item.
 - Artifact library berisi template business, product, design, engineering, quality, security, operations, dan growth; setiap template menyertakan struktur minimum, tool, dan AI starter prompt yang dapat disalin.
+- Technical artifact library menyediakan dokumen Markdown siap salin untuk Unit Test Plan, Integration Test Plan, Database Migration Plan, Deployment Plan, Rollback Plan, dan Test Evidence & Release Sign-off. Setiap template memuat owner, gate, langkah eksekusi, evidence record, dan approval; buka langsung dari kartu artifact pada dashboard atau dari [public/examples/artifacts](public/examples/artifacts/README.md).
 - Rekomendasi tools per fase lifecycle, ditautkan ke sumber resmi.
 - Reset demo memulihkan seluruh proyek, tim, checklist, evidence, dan artefak starter.
 
