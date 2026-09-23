@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "project": "Nama proyek Anda",
+  "documents": [
+    {
+      "id": "prd-v1",
+      "checklistId": "DES-001",
+      "artifactCode": "PRO-004",
+      "title": "PRD v1",
+      "type": "markdown",
+      "location": { "type": "repository", "path": "docs/product/prd.md" },
+      "status": "approved",
+      "updatedAt": "2026-09-24",
+      "tags": ["prd", "requirements", "acceptance criteria"],
+      "summary": "Ganti dengan ringkasan faktual dari dokumen proyek Anda."
+    },
+    {
+      "id": "online-release-plan",
+      "checklistId": "REL-001",
+      "artifactCode": "OPS-001",
+      "title": "Release plan",
+      "type": "link",
+      "location": { "type": "online", "url": "https://your-company.atlassian.net/wiki/spaces/ENG/pages/123/Release+Plan" },
+      "status": "draft",
+      "updatedAt": "2026-09-24",
+      "tags": ["release", "rollback"],
+      "summary": "Ganti dengan ringkasan faktual dari dokumen kanonis."
+    }
+  ]
+}
