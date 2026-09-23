@@ -69,22 +69,49 @@ skills/production-readiness-evidence/
 
 Instruksi lengkap ada di [docs/agent-workflow.md](docs/agent-workflow.md). Kedua skill memakai format portable `SKILL.md`, sehingga dapat dipakai oleh environment agent yang mendukung format tersebut.
 
-### Dokumen di Jira, ClickUp, Notion, Drive, atau platform lain
+### Document Index: lokasi semua dokumen proyek
 
-Dashboard tidak menyimpan kredensial dan tidak langsung menarik dokumen SaaS. Agent yang telah diberi koneksi MCP oleh user melakukan pencarian hanya pada project/folder yang diberi izin, lalu menulis indeks kecil berikut pada repository target:
+Agent menyimpan lokasi kanonis tiap artefak pada file berikut di repository target:
 
 ```text
-.production-ready/sources.json
+.production-ready/documents.json
 ```
 
-Mulai dari [.production-ready/sources.example.json](.production-ready/sources.example.json). Index hanya menyimpan judul, URL kanonis, sumber, waktu akses, tag, dan ringkasan faktual. Setelah itu, jalankan scan ulang. Dengan model ini, repository menjadi source of truth untuk report audit tanpa memasukkan token, credential, atau isi dokumen yang tidak relevan ke Git.
+Mulai dari [.production-ready/documents.example.json](.production-ready/documents.example.json). Setiap entry menghubungkan `checklistId` dan `artifactCode` dengan judul, tipe dokumen, status, ringkasan, serta salah satu lokasi berikut:
+
+```json
+{ "location": { "type": "repository", "path": "docs/product/checkout-prd.md" } }
+```
+
+atau:
+
+```json
+{ "location": { "type": "online", "url": "https://your-company.atlassian.net/wiki/..." } }
+```
+
+Di halaman **Checklist**, panel **Document Index** menyediakan **Import index**. Link online dapat langsung dibuka. Untuk path repository, pilih root folder repository sekali melalui **Pilih folder repo**, kemudian dashboard dapat membuka entry Markdown, PDF, dan DOCX yang terdaftar.
+
+- Markdown dirapikan dengan Prettier lalu dirender lokal.
+- PDF dibaca dengan PDF.js.
+- DOCX dibaca dengan Mammoth.
+- Browser meminta izin memilih folder; aplikasi tidak dapat membaca filesystem tanpa aksi tersebut.
+
+### Dokumen di Jira, ClickUp, Notion, Drive, atau platform lain
+
+Dashboard tidak menyimpan kredensial dan tidak langsung menarik dokumen SaaS. Agent yang telah diberi koneksi MCP oleh user melakukan pencarian hanya pada project/folder yang diberi izin, lalu menulis document index pada repository target:
+
+```text
+.production-ready/documents.json
+```
+
+Index hanya menyimpan judul, lokasi kanonis, status, tag, dan ringkasan faktual. Setelah itu, jalankan scan ulang. Dengan model ini, repository menjadi source of truth untuk report audit tanpa memasukkan token, credential, atau isi dokumen yang tidak relevan ke Git.
 
 ### Alur kerja yang disarankan
 
 1. Jalankan aplikasi lokal dengan `npm install` dan `npm run dev`.
 2. Install skill scan pada agent, lalu berikan path repository yang ingin diaudit.
-3. Bila dokumen berada di luar repo, hubungkan MCP yang telah diotorisasi dan gunakan skill evidence untuk membuat source index.
-4. Jalankan scanner dan import `audit.json` pada panel **Local agent workflow** di halaman Checklist.
+3. Bila dokumen berada di luar repo, hubungkan MCP yang telah diotorisasi dan gunakan skill evidence untuk membuat `documents.json`.
+4. Import `documents.json` pada panel **Document Index**, lalu jalankan scanner dan import `audit.json` pada panel **Local agent workflow**.
 5. Review evidence dan tetapkan owner. Gunakan **Copy agent gap plan** atau **Copy prompt** pada checklist item untuk meminta agent menyusun artefak yang kurang.
 6. Simpan artefak ke repository atau sumber dokumen kanonis, review, lalu scan ulang.
 

@@ -5,7 +5,7 @@ description: Gather user-authorized external project documents through MCP or co
 
 # Production Readiness Evidence
 
-Use this skill only after the user has authorized access to the external source. Its job is to build a small, traceable document index for `production-readiness-scan`; it does not copy credentials into the repository.
+Use this skill only after the user has authorized access to the external source. Its job is to build a small, traceable document index for `production-readiness-scan` and the dashboard's local document reader; it does not copy credentials into the repository.
 
 ## Gather through MCP
 
@@ -16,16 +16,20 @@ Use this skill only after the user has authorized access to the external source.
 
 ## Write the local source index
 
-Create `.production-ready/sources.json` inside the target repository using this shape:
+Create `.production-ready/documents.json` inside the target repository using this shape:
 
 ```json
 {
+  "schemaVersion": "1.0",
   "documents": [
     {
       "title": "Checkout PRD v2",
-      "url": "https://example.atlassian.net/wiki/…",
-      "source": "jira",
-      "retrievedAt": "2026-09-23T00:00:00Z",
+      "checklistId": "DES-001",
+      "artifactCode": "PRO-004",
+      "type": "link",
+      "location": { "type": "online", "url": "https://example.atlassian.net/wiki/…" },
+      "status": "approved",
+      "updatedAt": "2026-09-23",
       "tags": ["prd", "acceptance criteria", "checkout"],
       "summary": "Scope, non-scope, owners, acceptance criteria, and launch metric are defined."
     }
@@ -33,7 +37,9 @@ Create `.production-ready/sources.json` inside the target repository using this 
 }
 ```
 
-Then run `node scripts/scan-repository.mjs --root /path/to/target-repository` and import `.production-ready/audit.json` into the dashboard.
+For a local repository document, use `"location": { "type": "repository", "path": "docs/product/prd.md" }`. Supported viewer types are `markdown`, `pdf`, `docx`, and `link`. Start from `.production-ready/documents.example.json`.
+
+Then run `node scripts/scan-repository.mjs --root /path/to/target-repository`. Import `documents.json` in the dashboard to browse its locations, then import `audit.json` for candidate evidence.
 
 ## Integrity rules
 

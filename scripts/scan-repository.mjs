@@ -58,6 +58,7 @@ function arg(name, fallback) { const index = process.argv.indexOf(name); return 
 const root = resolve(arg('--root', process.cwd()));
 const output = resolve(arg('--output', join(root, '.production-ready', 'audit.json')));
 const sourcesPath = resolve(arg('--sources', join(root, '.production-ready', 'sources.json')));
+const documentsPath = resolve(arg('--documents', join(root, '.production-ready', 'documents.json')));
 
 function walk(directory, files = []) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -77,10 +78,23 @@ function readSources() {
   if (!existsSync(sourcesPath)) return [];
   try { const parsed = JSON.parse(readFileSync(sourcesPath, 'utf8')); return Array.isArray(parsed.documents) ? parsed.documents : []; } catch { return []; }
 }
+function readDocumentIndex() {
+  if (!existsSync(documentsPath)) return [];
+  try {
+    const parsed = JSON.parse(readFileSync(documentsPath, 'utf8'));
+    if (!Array.isArray(parsed.documents)) return [];
+    return parsed.documents.map(document => ({
+      title: document.title || document.location?.path || document.location?.url || 'Document index entry',
+      url: document.location?.url || '',
+      tags: [document.checklistId, document.artifactCode, document.type, ...(document.tags || [])].filter(Boolean),
+      summary: document.summary || document.title || ''
+    }));
+  } catch { return []; }
+}
 
 if (!existsSync(root)) throw new Error(`Repository root tidak ditemukan: ${root}`);
 const files = walk(root).slice(0, 2000).map(file => ({ path: relative(root, file), content: readText(file) }));
-const sources = readSources();
+const sources = [...readSources(), ...readDocumentIndex()];
 const findings = rules.map(([checklistId, title, pattern]) => {
   const evidence = [];
   for (const file of files) {

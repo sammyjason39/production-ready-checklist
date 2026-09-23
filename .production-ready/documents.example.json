@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0",
+  "project": "HaramainKU Travel & Operations",
+  "documents": [
+    {
+      "id": "prd-checkout-v2",
+      "checklistId": "DES-001",
+      "artifactCode": "PRO-004",
+      "title": "Checkout PRD v2",
+      "type": "markdown",
+      "location": {
+        "type": "repository",
+        "path": "docs/product/checkout-prd.md"
+      },
+      "status": "approved",
+      "updatedAt": "2026-09-23",
+      "tags": ["prd", "checkout", "acceptance criteria"],
+      "summary": "Scope, non-scope, owner, acceptance criteria, risk, and success metrics are documented."
+    },
+    {
+      "id": "threat-model-v1",
+      "checklistId": "SEC-001",
+      "artifactCode": "SEC-001",
+      "title": "Threat Model v1",
+      "type": "pdf",
+      "location": {
+        "type": "repository",
+        "path": "docs/security/threat-model-v1.pdf"
+      },
+      "status": "in-review",
+      "updatedAt": "2026-09-20",
+      "tags": ["stride", "security"],
+      "summary": "Threats, trust boundaries, mitigations, residual risk, and owner are documented."
+    },
+    {
+      "id": "jira-release-plan",
+      "checklistId": "REL-001",
+      "artifactCode": "OPS-001",
+      "title": "Release plan in Jira",
+      "type": "link",
+      "location": {
+        "type": "online",
+        "url": "https://your-company.atlassian.net/wiki/spaces/ENG/pages/123/Release+Plan"
+      },
+      "status": "draft",
+      "updatedAt": "2026-09-22",
+      "tags": ["release", "rollback"],
+      "summary": "Canonical project document accessed through an authorized connector."
+    }
+  ]
+}
