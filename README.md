@@ -56,6 +56,8 @@ node scripts/scan-repository.mjs --root /absolute/path/ke/repository \
 
 Scanner membaca source code dan file teks umum, lalu mencari kandidat evidence seperti PRD, ADR, ERD, OpenAPI, test strategy, threat model, release plan, runbook, SLO, dan SEO plan. Hasil ada pada `<repository>/.production-ready/audit.json`.
 
+Selain temuan checklist, audit versi terbaru juga mengumpulkan fakta repository: branch, jumlah commit, commit terakhir, jumlah source/test file, bahasa yang terdeteksi, dan indikator persentase area checklist yang memiliki candidate evidence. Setelah agent meninjau sumber yang diizinkan, ia dapat menambahkan narasi proyek pada `.production-ready/agent-summary.json`; gunakan [.production-ready/agent-summary.example.json](.production-ready/agent-summary.example.json) sebagai format lalu jalankan scanner sekali lagi. Ringkasan itu muncul di Overview dashboard dan tidak boleh berisi credential, source-code dump, atau klaim yang tidak didukung sumber.
+
 ### Install skill pada agent
 
 Salin atau symlink dua folder ini ke skills directory pada agent yang digunakan:

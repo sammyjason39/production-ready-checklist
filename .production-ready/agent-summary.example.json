@@ -1,0 +1,24 @@
+{
+  "overview": "HaramainKU membantu operasi perjalanan dan layanan pelanggan. Ringkasan ini hanya memakai README, dokumen yang terindeks, dan source repository yang telah diizinkan.",
+  "capabilities": [
+    "Pencarian paket perjalanan dan inquiry pelanggan",
+    "Workflow operasional untuk status booking",
+    "Dashboard internal untuk tim layanan"
+  ],
+  "currentFocus": "Lengkapi integration test checkout dan drill rollback sebelum rollout bertahap.",
+  "implementationProgress": {
+    "percent": 60,
+    "basis": "Perbandingan acceptance criteria PRD checkout dengan route, komponen, migration, dan test yang ditemukan pada commit saat scan. Angka ini adalah estimasi agent dan menunggu review tech lead.",
+    "completed": ["Alur inquiry tersedia", "Model booking dan migration versi awal tersedia"],
+    "remaining": ["Test integrasi payment sandbox", "Rollout flag dan release drill"]
+  },
+  "risks": [
+    "Migration plan belum memiliki bukti restore drill.",
+    "Owner untuk alert latency belum tercatat di observability plan."
+  ],
+  "sources": [
+    "README.md",
+    "docs/product/checkout-prd.md",
+    "Jira: Release plan Q4"
+  ]
+}

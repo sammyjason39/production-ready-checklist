@@ -7,8 +7,9 @@ The local dashboard is the review surface. It is deliberately not a credential s
 3. If the project records live in Jira, ClickUp, Notion, Drive, or another connected system, install/copy `skills/production-readiness-evidence`. Connect that service through the agent's authorized MCP setup.
 4. Ask the agent to write document metadata, canonical URLs or repository-relative paths, tags, and short factual summaries into `<repo>/.production-ready/documents.json`. Start from `.production-ready/documents.example.json`.
 5. Run the scanner again. It emits `<repo>/.production-ready/audit.json`.
-6. In the dashboard, select **Import index** to open the document registry, then select **Import scan**. Candidate evidence becomes attached to the matching checklist items and incomplete candidates become **Sedang dikerjakan**. Nothing is automatically marked done.
-7. Review the evidence, assign owners, and use **Copy prompt** on missing checklist entries to ask an agent to draft the required artifact. Re-scan after the artifact is reviewed and saved.
+6. Ask the agent to create `<repo>/.production-ready/agent-summary.json` from the repository and authorized documents, then run the scanner once more. Use `.production-ready/agent-summary.example.json` as the contract. This adds a factual project overview, capabilities, current focus, risks, and source list to the report.
+7. In the dashboard, select **Import index** to open the document registry, then select **Import scan**. Candidate evidence becomes attached to the matching checklist items and incomplete candidates become **Sedang dikerjakan**. The Overview page also shows branch, commit count, latest commit, source/test file count, detected languages, and the scanner's evidence-progress indicator. Nothing is automatically marked done.
+8. Review the evidence, assign owners, and use **Copy prompt** on missing checklist entries to ask an agent to draft the required artifact. Re-scan after the artifact is reviewed and saved.
 
 ## Use with Claude, Hermes, Codex, or another agent
 
@@ -22,4 +23,8 @@ If project documentation is outside the repo, use the authorized MCP connector a
 production-readiness-evidence to build .production-ready/sources.json first.
 Generate audit.json, summarize the five highest-risk gaps, and do not mark any item
 done unless an owner has explicitly approved the linked evidence.
+
+Write the factual project narrative to .production-ready/agent-summary.json using
+.production-ready/agent-summary.example.json, rerun the scanner, and cite the paths
+or authorized document links used. Do not include credentials or source-code dumps.
 ```

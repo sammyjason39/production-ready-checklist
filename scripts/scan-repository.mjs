@@ -5,6 +5,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { resolve, relative, join, basename } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const ignored = new Set(['.git', 'node_modules', 'dist', 'build', '.next', '.cache', 'coverage', 'vendor']);
 const textExtensions = new Set(['.md', '.mdx', '.txt', '.rst', '.json', '.yaml', '.yml', '.toml', '.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx', '.py', '.go', '.java', '.rb', '.php', '.sql', '.html']);
@@ -59,6 +60,7 @@ const root = resolve(arg('--root', process.cwd()));
 const output = resolve(arg('--output', join(root, '.production-ready', 'audit.json')));
 const sourcesPath = resolve(arg('--sources', join(root, '.production-ready', 'sources.json')));
 const documentsPath = resolve(arg('--documents', join(root, '.production-ready', 'documents.json')));
+const agentSummaryPath = resolve(arg('--agent-summary', join(root, '.production-ready', 'agent-summary.json')));
 
 function walk(directory, files = []) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -91,6 +93,31 @@ function readDocumentIndex() {
     }));
   } catch { return []; }
 }
+function git(args) { try { return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { return ''; } }
+function firstMeaningfulText(markdown = '') {
+  return markdown.split(/\r?\n/).filter(line => !/^#{1,6}\s+/.test(line)).map(line => line.replace(/[`*_>[\]]/g, '').trim()).find(line => line.length > 30 && !line.startsWith('!')) || '';
+}
+function readPackage() { try { return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')); } catch { return {}; } }
+function readAgentSummary() {
+  if (!existsSync(agentSummaryPath)) return null;
+  try {
+    const value = JSON.parse(readFileSync(agentSummaryPath, 'utf8'));
+    if (!value || typeof value !== 'object') return null;
+    return {
+      overview: String(value.overview || '').slice(0, 1200),
+      capabilities: Array.isArray(value.capabilities) ? value.capabilities.map(item => String(item).slice(0, 160)).slice(0, 12) : [],
+      currentFocus: String(value.currentFocus || '').slice(0, 500),
+      risks: Array.isArray(value.risks) ? value.risks.map(item => String(item).slice(0, 240)).slice(0, 8) : [],
+      implementationProgress: value.implementationProgress && typeof value.implementationProgress === 'object' ? {
+        percent: Math.max(0, Math.min(100, Number(value.implementationProgress.percent) || 0)),
+        basis: String(value.implementationProgress.basis || '').slice(0, 500),
+        completed: Array.isArray(value.implementationProgress.completed) ? value.implementationProgress.completed.map(item => String(item).slice(0, 160)).slice(0, 10) : [],
+        remaining: Array.isArray(value.implementationProgress.remaining) ? value.implementationProgress.remaining.map(item => String(item).slice(0, 160)).slice(0, 10) : []
+      } : null,
+      sources: Array.isArray(value.sources) ? value.sources.map(item => String(item).slice(0, 240)).slice(0, 12) : []
+    };
+  } catch { return null; }
+}
 
 if (!existsSync(root)) throw new Error(`Repository root tidak ditemukan: ${root}`);
 const files = walk(root).slice(0, 2000).map(file => ({ path: relative(root, file), content: readText(file) }));
@@ -108,7 +135,42 @@ const findings = rules.map(([checklistId, title, pattern]) => {
   }
   return { checklistId, title, status: evidence.length ? 'candidate_evidence' : 'missing', confidence: evidence.length ? Math.min(.9, .45 + evidence.length * .12) : 0, evidence, recommendation: evidence.length ? 'Review evidence; ubah menjadi selesai hanya setelah owner menyetujui.' : `Minta agent membuat atau menemukan ${title}, lalu jalankan scan ulang.` };
 });
-const report = { schemaVersion: '1.0', generatedAt: new Date().toISOString(), repository: { root, filesScanned: files.length, externalDocumentsScanned: sources.length }, summary: { candidateEvidence: findings.filter(f => f.evidence.length).length, missing: findings.filter(f => !f.evidence.length).length }, findings };
+const packageJson = readPackage();
+const readme = files.find(file => /^readme\.md$/i.test(basename(file.path)))?.content || '';
+const languageCounts = files.reduce((counts, file) => { const extension = file.path.split('.').pop()?.toLowerCase(); const name = ({ ts: 'TypeScript', tsx: 'TypeScript', js: 'JavaScript', jsx: 'JavaScript', mjs: 'JavaScript', cjs: 'JavaScript', py: 'Python', go: 'Go', java: 'Java', rb: 'Ruby', php: 'PHP', sql: 'SQL' })[extension]; if (name) counts[name] = (counts[name] || 0) + 1; return counts; }, {});
+const candidateEvidence = findings.filter(finding => finding.evidence.length).length;
+const codeFiles = files.filter(file => /\.(?:[cm]?[jt]sx?|py|go|java|rb|php|sql)$/i.test(file.path));
+const testFiles = codeFiles.filter(file => /(?:^|[./_-])(test|spec|__tests__)(?:[./_-]|$)|\.(?:test|spec)\./i.test(file.path));
+const branch = git(['branch', '--show-current']) || 'unknown';
+const commitCount = Number(git(['rev-list', '--count', 'HEAD'])) || 0;
+const lastCommit = git(['log', '-1', '--format=%H%x1f%h%x1f%s%x1f%cI']).split('\x1f');
+const detected = [
+  ...(packageJson.name ? [`package: ${packageJson.name}`] : []),
+  ...Object.entries(languageCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([language, count]) => `${language} (${count} file)`),
+  ...(testFiles.length ? [`${testFiles.length} test file`] : []),
+  ...(existsSync(join(root, '.github', 'workflows')) ? ['CI workflow directory'] : [])
+];
+const project = {
+  title: packageJson.name || basename(root),
+  overview: packageJson.description || firstMeaningfulText(readme) || 'Ringkasan belum ditemukan; tambahkan description pada package.json atau README.',
+  detected,
+  repositoryMetrics: {
+    filesScanned: files.length,
+    sourceFiles: codeFiles.length,
+    testFiles: testFiles.length,
+    languages: languageCounts,
+    branch,
+    commitCount,
+    lastCommit: lastCommit[0] ? { sha: lastCommit[0], shortSha: lastCommit[1], message: lastCommit[2], committedAt: lastCommit[3] } : null
+  },
+  implementationProgress: {
+    percent: findings.length ? Math.round(candidateEvidence / findings.length * 100) : 0,
+    evidencedItems: candidateEvidence,
+    totalChecks: findings.length,
+    note: 'Indikator evidence yang ditemukan scanner; bukan estimasi effort atau persetujuan production.'
+  }
+};
+const report = { schemaVersion: '1.1', generatedAt: new Date().toISOString(), repository: { root, filesScanned: files.length, externalDocumentsScanned: sources.length }, project, agentSummary: readAgentSummary(), summary: { candidateEvidence, missing: findings.filter(f => !f.evidence.length).length }, findings };
 mkdirSync(resolve(output, '..'), { recursive: true });
 writeFileSync(output, `${JSON.stringify(report, null, 2)}\n`);
 console.log(`Production readiness scan selesai: ${report.summary.candidateEvidence} candidate evidence, ${report.summary.missing} gap.`);
